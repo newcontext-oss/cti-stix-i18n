@@ -1,0 +1,2 @@
+coverage
+git+git://github.com/oasis-open/cti-python-stix2.git@stix2.1#egg=stix2

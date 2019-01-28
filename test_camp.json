@@ -1,0 +1,10 @@
+{
+    "created": "2019-01-07T23:05:03.718Z",
+    "description": "This is a basic description of a campaign",
+    "id": "campaign--d5a0a371-1540-4214-9d87-78af159a7013",
+    "lang": "en",
+    "modified": "2019-01-07T23:05:03.718Z",
+    "name": "A Campaign",
+    "spec_version": "2.1",
+    "type": "campaign"
+}

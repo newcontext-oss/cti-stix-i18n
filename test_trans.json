@@ -1,0 +1,16 @@
+{
+    "contents": {
+        "bogus": {},
+        "th": {
+            "description": "a Thai description"
+        }
+    },
+    "created": "2019-01-07T23:05:03.718Z",
+    "created_by_ref": "identity--ea5e1e69-7275-4ace-afaf-698293c1f292",
+    "id": "language-content--90a323bf-7be9-4c89-b949-b588de0888cf",
+    "modified": "2019-01-07T23:05:03.718Z",
+    "object_modified": "2019-01-07T23:05:03.718Z",
+    "object_ref": "campaign--d5a0a371-1540-4214-9d87-78af159a7013",
+    "spec_version": "2.1",
+    "type": "language-content"
+}
