@@ -44,7 +44,7 @@ Complex
 -------
 
 read a priority of languages from an object w/ a translation object
-read a priority of languages from an object w/ multipl translation objects
+read a priority of languages from an object w/ multiple translation objects
 translation of list properties with multiple languages that are mixed (e.g.
 some translated to jp, some es, etc)
 
