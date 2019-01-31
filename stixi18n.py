@@ -45,13 +45,6 @@ __all__ = [ 'stixlangwrap' ]
 class _BogusLC(object):
 	pass
 
-@CustomObject('x-stip-sns', [ ('description', properties.StringProperty()),
-	('name', properties.StringProperty()),
-	('post_type', properties.StringProperty()),
-	])
-class StipSns(object):
-	pass
-
 class stixlangwrap(object):
 	'''Wrapper to make accessining and setting languages on STIX objects.'''
 
