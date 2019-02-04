@@ -1,0 +1,16 @@
+{
+  "type": "campaign",
+  "spec_version": "2.1",
+  "id": "campaign--12a111f0-b824-4baf-a224-83b80237a094",
+  "lang": "en",
+  "created": "2017-02-08T21:31:22.007Z",
+  "modified": "2017-02-08T21:31:22.007Z",
+  "name": "Bank Attack",
+  "description": "Weitere Informationen über Banküberfall",
+  "granular_markings": [
+    {
+      "selectors": ["description"],
+      "lang": "de"
+    }
+  ]
+}

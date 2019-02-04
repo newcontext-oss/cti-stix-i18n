@@ -116,24 +116,51 @@ class stixlangwrap(object):
 	def __getattr__(self, k):
 		return self.getlangtext(k)[1]
 
+	@staticmethod
+	def _getlangmarking(obj, k):
+		try:
+			for marking in obj.granular_markings:
+				for marking_selector in marking['selectors']:
+					if k == marking_selector:
+						try:
+							return marking['lang']
+						except KeyError:
+							pass
+		except Exception:
+			pass
+
+		raise ValueError('unable to find selector for "%s"' % `k`)
+
 	def getlangtext(self, k):
 		'''Return the language and the text of the attribute k as
 		a tuple.  If a lang is not specified on the original object,
 		None is returned for the language.'''
 
+		try:
+			marklang = self._getlangmarking(self._obj, k)
+		except ValueError:
+			marklang = None
+
 		for l in self._lang:
-			if hasattr(self._obj, 'lang') and l == self._obj.lang:
+			# XXX - https://github.com/oasis-open/cti-python-stix2/issues/251
+			# mark = self._obj.get_markings(k)
+			if marklang == l:
 				return l, getattr(self._obj, k)
+			elif marklang is None:
+				# only if there is no marking for the field
+				if hasattr(self._obj, 'lang') and l == self._obj.lang:
+					return l, getattr(self._obj, k)
 
 			if self._transobj is not None and \
 			    l in self._transobj.contents:
 				return l, self._transobj.contents[l][k]
 
 		# fail to default
-		if self._nodefault:
+		if self._nodefault or marklang is not None:
 			raise AttributeError(
 			    'unable to find the text for: %s' % `k`)
 
+		# xxx broken in granular markings
 		return self._obj.lang if hasattr(self._obj, 'lang') else \
 		    None, getattr(self._obj, k)
 
@@ -278,3 +305,23 @@ class TestSTIXi18n(unittest.TestCase):
 
 		self.assertRaises(ValueError, o.addtranslationobject,
 		    bundle=bundle)
+
+	def test_granularmarkings(self):
+		with open('test_granlang.json') as fp:
+			campobj = stix2.parse(fp.read())
+
+		o = stixlangwrap('en', campobj)
+
+		self.assertRaises(AttributeError, o.getlangtext, 'description')
+
+		o = stixlangwrap([ 'de', 'en' ], campobj)
+
+		self.assertEqual(o.getlangtext('description'), ('de', u'Weitere Informationen über Banküberfall'))
+
+	def test_granularnomarkings(self):
+		with open('test_grannolang.json') as fp:
+			campobj = stix2.parse(fp.read())
+
+		o = stixlangwrap('en', campobj)
+
+		self.assertEqual(o.getlangtext('description'), ('en', u'Weitere Informationen über Banküberfall'))

@@ -16,6 +16,7 @@ x -- o = stixlangwrap([ 'jp', 'en' ], obj)
 x -- o.addtranslationobject(obj2)
 x -- o.description
 x -- o.getlangtext('description')
+x -- data marking for language info
 
 o -- ostore = stixlangwrap('en', fetchfun)
 o -- o = ostore['uuid']
