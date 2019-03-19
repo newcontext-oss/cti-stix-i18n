@@ -1,0 +1,41 @@
+{
+    "type": "bundle",
+    "id": "bundle--e2da4ab2-8589-4a1e-a4eb-8f491bab8393",
+    "objects": [
+        {
+            "type": "identity",
+            "spec_version": "2.1",
+            "id": "identity--71cbac7a-b34e-4681-a7b1-6d9f28e86dab",
+            "created": "2019-03-13T02:49:21.222Z",
+            "modified": "2019-03-13T02:49:21.222Z",
+            "name": "Fujitsu System Integration Laboratories",
+            "identity_class": "organization"
+        },
+        {
+            "type": "report",
+            "spec_version": "2.1",
+            "id": "report--f26964ea-5a35-4baa-8fb4-31edded1cbd2",
+            "created_by_ref": "identity--71cbac7a-b34e-4681-a7b1-6d9f28e86dab",
+            "created": "2019-03-13T02:49:21.223Z",
+            "modified": "2019-03-13T02:49:21.223Z",
+            "name": "APT10 Targeted Norwegian MSP and US Companies in Sustained Campaign",
+            "description": "少なくとも欧米の 3 つの企業を標的とした継続的なサイバー諜報キャンペーンが、Recorded Future および Rapid 7 によって 2017 年 11 月から 2018 年 9 月の間に明らかになった。 発見された技術データに基づき、また最近の米国司法省による中国の国家による攻撃者の進行中の活動に関する発表に照らし合わせて、我々は高い自信をもって、これらの事案は (Stone Panda, menuPass, CVNX としても知られる) APT10 がネットワークへのアクセスを得て、重要な知的財産を盗む、あるいは商業的に有利な立場を得るために行われたと判断している。",
+            "report_types": [
+                "threat-report"
+            ],
+            "published": "2019-03-13T02:49:21.223879Z",
+            "object_refs": [
+                "x-stip-sns--9e952266-8163-434f-8522-11ce02165930"
+            ],
+            "lang": "en",
+            "granular_markings": [
+                {
+                    "lang": "ja",
+                    "selectors": [
+                        "description"
+                    ]
+                }
+            ]
+        }
+    ]
+}
