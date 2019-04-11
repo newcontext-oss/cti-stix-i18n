@@ -63,14 +63,14 @@ class stixlangwrap(object):
 			self._lang = list(lang)
 
 		self._obj = obj
-		self._transobj = None
+		self._transobj = []
 		self._nodefault = no_default
 
 	def gettranslationobject(self):
-		'''Return the language-content object that has the
-		translations.'''
+		'''Return the most recent language-content object added, if any.'''
 
-		return self._transobj
+		if self._transobj:
+			return self._transobj[0]
 
 	def addtranslationobject(self, transobj=None, ident=None, bundle=None):
 		'''
@@ -95,16 +95,9 @@ class stixlangwrap(object):
 			    object_modified=self._obj.modified,
 			    contents={ 'bogus': {} }, created_by_ref=ident.id)
 
-		if transobj is not None:
-			if transobj.type != 'language-content':
-				raise ValueError('invalid type, expected '
-				    'language-content, got: %s' % `transobj.type`)
-
-			self._transobj = transobj
-
 		if bundle is not None:
 			try:
-				self._transobj = [ x for x in bundle.objects if
+				transobj = [ x for x in bundle.objects if
 				    x.type == 'language-content' and
 				    hasattr(x, 'object_ref') and
 				    x.object_ref == self._obj.id ][0]
@@ -112,6 +105,13 @@ class stixlangwrap(object):
 				raise ValueError('unable to find '
 				    'language-content object for %s' %
 				    repr(self._obj.id))
+
+		if transobj is not None:
+			if transobj.type != 'language-content':
+				raise ValueError('invalid type, expected '
+				    'language-content, got: %s' % `transobj.type`)
+
+			self._transobj.insert(0, transobj)
 
 	def __getattr__(self, k):
 		return self.getlangtext(k)[1]
@@ -133,8 +133,12 @@ class stixlangwrap(object):
 
 	def getlangtext(self, k):
 		'''Return the language and the text of the attribute k as
-		a tuple.  If a lang is not specified on the original object,
-		None is returned for the language.'''
+		a tuple.  If a lang is not specified on the original object
+		and there is not a more prefered translation for that property,
+		None is returned for the language.
+
+		This will search the most recently added translation objects
+		first, and finally the base object.'''
 
 		try:
 			marklang = self._getlangmarking(self._obj, k)
@@ -151,9 +155,10 @@ class stixlangwrap(object):
 				if hasattr(self._obj, 'lang') and l == self._obj.lang:
 					return l, getattr(self._obj, k)
 
-			if self._transobj is not None and \
-			    l in self._transobj.contents:
-				return l, self._transobj.contents[l][k]
+			for x in self._transobj:
+				if x is not None and \
+				    l in x.contents and k in x.contents[l]:
+					return l, x.contents[l][k]
 
 		# fail to default
 		if self._nodefault or marklang is not None:
@@ -165,10 +170,17 @@ class stixlangwrap(object):
 		    None, getattr(self._obj, k)
 
 	def setlangtext(self, k, lang, v):
-		if self._transobj is None:
+		'''Set a property on the most recently added translation
+		object.
+
+		This does not update the modified date of the object, and so
+		when you output/serialize it, it is the caller's job to
+		properly handle versioning.'''
+
+		if not self._transobj:
 			raise ValueError('no translation object set')
 
-		self._transobj.contents.setdefault(lang, {})[k] = v
+		self._transobj[0].contents.setdefault(lang, {})[k] = v
 
 class TestSTIXi18n(unittest.TestCase):
 	def setUp(self):
@@ -176,8 +188,9 @@ class TestSTIXi18n(unittest.TestCase):
 		    identity_class="organization")
 
 	def test_reading(self):
+		name = 'A Campaign'
 		desc = 'This is a basic description of a campaign.'
-		camp = Campaign(name='A Campaign', lang='en', description=desc,
+		camp = Campaign(name=name, lang='en', description=desc,
 		    created_by_ref=self.ident.id)
 
 		# that a simple language wrapper
@@ -204,6 +217,10 @@ class TestSTIXi18n(unittest.TestCase):
 		self.assertEqual(o.description, thdesc)
 		self.assertEqual(o.getlangtext('description'), ('th', thdesc))
 
+		# that then a translation object does not have a translation for a
+		# property, that it falls back to what is available
+		self.assertEqual(o.getlangtext('name'), ('en', name))
+
 		# That a Thai language wrapper
 		o = stixlangwrap('th', camp)
 
@@ -219,6 +236,30 @@ class TestSTIXi18n(unittest.TestCase):
 		# raises errors
 		self.assertRaises(AttributeError, getattr, o, 'description')
 		self.assertRaises(AttributeError, o.getlangtext, 'description')
+
+		o = stixlangwrap(['th', 'en'], camp)
+
+		# that when a translaction object
+		thdesc = 'A description in Thai.'
+		transobj = LanguageContent(object_ref=camp.id,
+		    object_modified=camp.modified, contents={ 'th':
+		    { 'description': thdesc }}, created_by_ref=self.ident.id)
+
+		# is added to a language wrapper w/ Thai as the priority
+		o.addtranslationobject(transobj)
+
+		# and a second translaction object
+		thname = 'A name in Thai.'
+		transobj2 = LanguageContent(object_ref=camp.id,
+		    object_modified=camp.modified, contents={ 'th':
+		    { 'name': thname }}, created_by_ref=self.ident.id)
+
+		# is added to a language wrapper w/ Thai as the priority
+		o.addtranslationobject(transobj2)
+
+		# that both translations are returned
+		self.assertEqual(o.getlangtext('description'), ('th', thdesc))
+		self.assertEqual(o.getlangtext('name'), ('th', thname))
 
 	def test_nolang(self):
 		desc = 'This is a basic description of a campaign.'
