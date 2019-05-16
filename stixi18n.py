@@ -66,6 +66,14 @@ class stixlangwrap(object):
 		self._transobj = []
 		self._nodefault = no_default
 
+	def recast(self, lang):
+		'''Make a child translation object with a new set of language
+		preferences.  It will mirror any added translation objects as
+		the parent, and modifications (translations) will be treated
+		the same as well.'''
+
+		raise NotImplementedError
+
 	def gettranslationobject(self):
 		'''Return the most recent language-content object added, if any.'''
 
@@ -358,6 +366,15 @@ class TestSTIXi18n(unittest.TestCase):
 		o = stixlangwrap([ 'de', 'en' ], campobj)
 
 		self.assertEqual(o.getlangtext('description'), ('de', u'Weitere Informationen über Banküberfall'))
+
+	# Cannot fetch the lang marking with the stix2 library
+	# https://github.com/oasis-open/cti-python-stix2/issues/251
+	@unittest.skip('granular markings broken')
+	def test_ctigranularmarkings(self):
+		with open('test_granlang.json') as fp:
+			campobj = stix2.parse(fp.read())
+
+		campobj.get_markings('description')
 
 	def test_granularnomarkings(self):
 		with open('test_grannolang.json') as fp:
